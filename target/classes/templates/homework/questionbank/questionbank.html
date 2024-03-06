@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('题目管理列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <input type="hidden" name="paperid" id="paperid" th:value="${paperId}"/>
+                            <li>
+                                <label>题目名称：</label>
+                                <input type="text" name="questions"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="add()" shiro:hasPermission="homework:questionbank:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="homework:questionbank:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="homework:questionbank:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="homework:questionbank:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('homework:questionbank:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('homework:questionbank:remove')}]];
+        var questiontypeDatas = [[${@dict.getType('questionType')}]];
+        var prefix = ctx + "homework/questionbank";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "题目管理",
+                queryParams: queryParams,//以试卷编号为过滤条件
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'questionid',
+                    title: '题目ID',
+                    visible: false
+                },
+                {
+                    field: 'paperid',
+                    title: '试卷ID',
+                    visible: false
+                },
+                {
+                    field: 'questions',
+                    title: '题目名称'
+                },
+                {
+                    field: 'questiontype',
+                    title: '题目类型',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(questiontypeDatas, value);
+                    }
+                },
+                {
+                    field: 'scores',
+                    title: '试题分值'
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.questionid + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.questionid + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+
+        /**通过试卷ID来过滤题目信息*/
+        function queryParams(params) {
+            var search = $.table.queryParams(params);
+            search.paperid = $("#paperid").val();
+            console.log(search)
+            return search;
+        }
+        /**点击重置时初始化试卷编号*/
+        function resetPre() {
+            $.form.reset();
+            $("#paperid").val($("#paperid").val()).trigger("change");
+        }
+        /**新增题库-带着试卷编号*/
+        function add() {
+            var paperid = $("#paperid").val();
+            $.modal.open("新增题目",prefix+"/add/"+paperid);
+        }
+    </script>
+</body>
+</html>

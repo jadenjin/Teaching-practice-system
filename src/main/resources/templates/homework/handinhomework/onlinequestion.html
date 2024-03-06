@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('在线写作业')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+            <div class="alert alert-info">
+                <h2><i class="fa fa-balance-scale"></i>试卷——<span th:text="${papertitle}"></span>——的作业</h2>
+            </div>
+            <div class="ibox-content">
+                <form class="form-horizontal m" id="form-ibox-content">
+                    <ul class="list-group" th:each="item:${radioQuestionsList}">
+                        <li class="list-group-item"><h3 class="alert alert-success"><span th:text="${itemStat.index+1}"></span>. <span th:text="${item.questions}"></span>（<span th:text="${item.scores}"></span>分）</h3>
+                            <ul class="list-group" th:each="subitem:${item.questionOptionsList}">
+                                <li class="list-group-item">
+                                    <span><label th:text="${subitem.optionTag}"></label></span> 、
+                                    <div class="radio radio-box">
+                                        <label> <input type="radio"  th:name="${item.questionid}" th:id="'optionid'+${itemStat.index+1}" th:attr="data-id=${subitem.optionId}" th:value="${subitem.optionId}">
+                                        <span th:text="${subitem.optionContent}"></span></label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </form>
+                <button class="btn btn-primary dim btn-block" onclick="submit()">提交答案</button>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    let queastionsize = 1;
+    let teacherid = '';
+    let homeworkid = '';
+    $(function() {
+        queastionsize = [[${queastionsize}]];
+        teacherid = [[${teacherid}]];
+        homeworkid = [[${homeworkid}]];
+    });
+
+    $("#form-ibox-content").validate({
+        focusCleanup: true
+    });
+
+    function submit(){
+        let dataarray = $("#form-ibox-content").serializeArray();
+        // console.log(dataarray);
+        if (dataarray.length == 0) {
+            $.modal.alertError("请先做题好不好？");
+            return false;
+        }
+        if (dataarray.length != queastionsize) {
+            $.modal.alertWarning("您还有未做的题，尽快完成再提交吧~");
+            return false;
+        }
+        // console.log(JSON.stringify($("#form-ibox-content").serialize()))
+        let prefix = "/homework/handinhomework";
+        if ($.validate.form()) {
+            $.post(prefix + "/submitRadioOptions", {paperid:[[${paperid}]],teacherid:teacherid,homeworkid:homeworkid,options: JSON.stringify($("#form-ibox-content").serialize())}, function(result) {
+               console.log(result)
+                if (result.code == web_status.SUCCESS) {
+                    $.modal.msgSuccess("提交成功")
+                    $.modal.close();
+                } else {
+                    $.modal.msgError(result.msg);
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <th:block th:include="include :: header('作业详情')" />
+</head>
+<style>
+  .tdtextbold{
+    font-weight: 600;
+  }
+  .widthh{
+    width: 150px;
+  }
+  .width{
+    width: 200px;
+  }
+  .tdstyle{
+    border: 1px solid #009866;
+    text-align: center;
+  }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+  <div th:if="${answer}">
+    <h2 class="text-center">-------------------------客观题-------------------------</h2>
+    <form class="form-horizontal m">
+      <table class="table table-bordered">
+        <tbody>
+        <tr>
+          <td colspan="3" style="text-align: center;font-size: 20px;font-weight: bold;">客观题作业详情信息</td>
+        </tr>
+        <tr>
+          <td class="tdstyle">作业题目</td>
+          <td class="tdstyle">学生作答</td>
+          <td class="tdstyle">答案状态</td>
+        </tr>
+        <tr th:each="answer:${answer}">
+          <td><label th:text="${answer.question}"></label></td>
+          <td><label th:text="${answer.answer}"></label></td>
+          <td><label  th:if="${answer.correctAnswerStatus}==0"><span style="color: #1AB394">答案正确</span></label><label  th:if="${answer.correctAnswerStatus}==1"><span style="color: red">答案错误</span></label></td>
+        </tr>
+        </tbody>
+      </table>
+    </form>
+  </div>
+  <form class="form-horizontal m">
+    <div class="btn btn-success  dim hidden-print" style="margin-bottom: 10px;" type="button" onclick="printPage()"><i class="fa fa-print"></i>&nbsp;打印此表</div><br>
+    <table class="table table-bordered">
+      <tbody>
+      <tr>
+        <td colspan="4" style="text-align: center;font-size: 20px;font-weight: bold;"><label th:text="${handInHomework.courseName}"></label>作业详情信息<span class="pull-right" style="font-size: 16px;margin-top: 5px" th:text="${#dates.format(handInHomework.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">班级</td>
+        <td class="tdstyle"><label th:text="${handInHomework.stuclasSname}"></label></td>
+        <td class="tdstyle">作业标题</td>
+        <td class="tdstyle"><label th:text="${handInHomework.homeworkTitle}"></label></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">作业内容</td>
+        <td class="tdstyle" colspan="3"><label th:utext="${handInHomework.studentContent}"></label></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">学生作答</td>
+        <td class="tdstyle" colspan="3"><label th:utext="${handInHomework.homeworkContent}"></label></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">提交时间</td>
+        <td class="tdstyle"><label th:text="${#dates.format(handInHomework.CreateTime,'yyyy-MM-dd HH:mm:ss')}"></label></td>
+        <td class="tdstyle">作业总评分</td>
+        <td class="tdstyle"><label th:text="${handInHomework.allscores}"></label></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">客观分</td>
+        <td class="tdstyle"><label th:text="${handInHomework.radioscore}"></label></td>
+        <td class="tdstyle">主观分</td>
+        <td class="tdstyle"><label th:text="${handInHomework.homeworkScore}"></label></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">批改意见</td>
+        <td class="tdstyle" colspan="3"><label th:text="${handInHomework.remark}"></label></td>
+      </tr>
+      <tr class="hidden-print">
+        <td class="tdstyle">附件</td>
+        <td class="tdstyle" colspan="3">
+          <div class="col-sm-4">
+            <a style="cursor:pointer" th:href="${handInHomework.material}"><label>附件下载</label></a>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+<th:block th:include="include :: footer" />
+<script type="text/javascript">
+  function printPage() {
+    window.print();
+  }
+</script>
+</body>
+</html>
+
+</body>
+</html>

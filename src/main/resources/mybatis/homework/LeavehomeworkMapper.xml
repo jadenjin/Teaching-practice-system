@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.homework.leavehomework.mapper.LeavehomeworkMapper">
+
+    <resultMap type="Leavehomework" id="LeavehomeworkResult">
+        <result property="id"    column="id"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="stuclassId"    column="stuclass_id"    />
+        <result property="paperid"    column="paperid"    />
+        <result property="stuclasSname"    column="stuclas_sname"    />
+        <result property="courseName"    column="course_name"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="material"    column="material"    />
+        <result property="remark"    column="remark"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectLeavehomeworkVo">
+        select id, teacher_id, teacher_name, stuclass_id,paperid, stuclas_sname, course_name, title, content, start_time, end_time, material, remark, status, create_time, update_time, create_by, update_by from stu_leavehomework
+    </sql>
+
+    <select id="selectLeavehomeworkList" parameterType="Leavehomework" resultMap="LeavehomeworkResult">
+        <include refid="selectLeavehomeworkVo"/>
+        <where>
+            <if test="teacherId != null  and teacherId != ''"> and teacher_id = #{teacherId}</if>
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="stuclassId != null  and stuclassId != ''"> and stuclass_id = #{stuclassId}</if>
+            <if test="stuclasSname != null  and stuclasSname != ''"> and stuclas_sname like concat('%', #{stuclasSname}, '%')</if>
+            <if test="courseName != null  and courseName != ''"> and course_name like concat('%', #{courseName}, '%')</if>
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="startTime != null "> and start_time = #{startTime}</if>
+            <if test="endTime != null "> and end_time = #{endTime}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectLeavehomeworkById" parameterType="Long" resultMap="LeavehomeworkResult">
+        <include refid="selectLeavehomeworkVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectNotHaninHomeworkStuinfo"
+            resultType="com.ruoyi.project.homework.leavehomework.domain.HandinHomweokVo">
+        select s.dept_id classid,s.user_name stuname,s.login_name loginname from sys_user s where user_type = 3 and dept_id = #{hid} and s.login_name not in(select student_id from stu_hand_in_homework where homework_id = #{id});
+    </select>
+    <select id="selectLeavehomeworkByClassID" resultType="java.lang.Integer">
+        select count(*) from sys_user s where user_type = 3 and dept_id = #{hid}
+    </select>
+    <select id="selectLeavehomeworkByClassIDAndID" resultType="java.lang.Integer">
+        select count(*) from sys_user s where user_type = 3 and dept_id = #{hid} and s.login_name not in(select a.student_id from stu_hand_in_homework a where homework_id = #{id});
+    </select>
+    <select id="selectLeavehomeworkScoreById" resultType="com.ruoyi.project.homework.leavehomework.domain.ScoreStage">
+        select sum(case when allscores between 90 and 100 then 1 else 0 end) as a,
+        sum(case when allscores between 80 and 89 then 1 else 0 end) as b,
+        sum(case when allscores between 70 and 79 then 1 else 0 end) as c,
+        sum(case when allscores between 60 and 69 then 1 else 0 end) as d,
+        sum(case when allscores &lt; 60 then 1 else 0 end) as e
+        from stu_hand_in_homework where homework_id = #{id}
+    </select>
+    <select id="selectLeavehomeworkByPaperId" resultMap="LeavehomeworkResult">
+        <include refid="selectLeavehomeworkVo"/>
+        where paperid = #{paperId}
+    </select>
+
+
+    <insert id="insertLeavehomework" parameterType="Leavehomework" useGeneratedKeys="true" keyProperty="id">
+        insert into stu_leavehomework
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="teacherName != null">teacher_name,</if>
+            <if test="stuclassId != null">stuclass_id,</if>
+            <if test="paperid != null">paperid,</if>
+            <if test="stuclasSname != null">stuclas_sname,</if>
+            <if test="courseName != null">course_name,</if>
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="material != null">material,</if>
+            <if test="remark != null">remark,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="teacherName != null">#{teacherName},</if>
+            <if test="stuclassId != null">#{stuclassId},</if>
+            <if test="paperid != null">#{paperid},</if>
+            <if test="stuclasSname != null">#{stuclasSname},</if>
+            <if test="courseName != null">#{courseName},</if>
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="material != null">#{material},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+        </trim>
+    </insert>
+
+    <update id="updateLeavehomework" parameterType="Leavehomework">
+        update stu_leavehomework
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="teacherName != null">teacher_name = #{teacherName},</if>
+            <if test="stuclassId != null">stuclass_id = #{stuclassId},</if>
+            <if test="paperid != null">paperid = #{paperid},</if>
+            <if test="stuclasSname != null">stuclas_sname = #{stuclasSname},</if>
+            <if test="courseName != null">course_name = #{courseName},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="material != null">material = #{material},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLeavehomeworkById" parameterType="Long">
+        delete from stu_leavehomework where id = #{id}
+    </delete>
+
+    <delete id="deleteLeavehomeworkByIds" parameterType="String">
+        delete from stu_leavehomework where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <th:block th:include="include :: header('作业详情')" />
+</head>
+<style>
+  .tdtextbold{
+    font-weight: 600;
+  }
+  .widthh{
+    width: 150px;
+  }
+  .width{
+    width: 200px;
+  }
+  .tdstyle{
+    border: 1px solid #009866;
+    text-align: center;
+  }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+  <form class="form-horizontal m">
+    <div class="btn btn-success  dim hidden-print" style="margin-bottom: 10px;" type="button" onclick="printPage()"><i class="fa fa-print"></i>&nbsp;打印此表</div><br>
+    <table class="table table-bordered">
+      <tbody>
+      <tr>
+        <td colspan="4" style="text-align: center;font-size: 20px;font-weight: bold;">作业详情信息<span class="pull-right" style="font-size: 16px;margin-top: 5px" th:text="${#dates.format(handInHomework.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">班级</td>
+        <td class="tdstyle"><label th:text="${handInHomework.stuclasSname}"></label></td>
+        <td class="tdstyle">作业标题</td>
+        <td class="tdstyle"><label th:text="${handInHomework.title}"></label></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">开始时间</td>
+        <td class="tdstyle"><label th:text="${#dates.format(handInHomework.startTime,'yyyy-MM-dd HH:mm')}"></label></td>
+        <td class="tdstyle">结束时间</td>
+        <td class="tdstyle"><label th:text="${#dates.format(handInHomework.endTime,'yyyy-MM-dd HH:mm')}"></label></td>
+      </tr>
+      <tr>
+        <td class="tdstyle">作业内容</td>
+        <td class="tdstyle" colspan="3"><label th:utext="${handInHomework.content}"></label></td>
+      </tr>
+      <tr class="hidden-print">
+        <td class="tdstyle">附件</td>
+        <td class="tdstyle" colspan="3">
+          <div class="col-sm-4">
+            <a style="cursor:pointer" th:href="${handInHomework.material}"><label>附件下载</label></a>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+<th:block th:include="include :: footer" />
+<script type="text/javascript">
+  function printPage() {
+    window.print();
+  }
+</script>
+</body>
+</html>
+
+</body>
+</html>

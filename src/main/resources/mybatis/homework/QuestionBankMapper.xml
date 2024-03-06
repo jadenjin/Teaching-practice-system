@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.homework.questionbank.mapper.QuestionBankMapper">
+    
+    <resultMap type="QuestionBank" id="QuestionBankResult">
+        <result property="questionid"    column="questionid"    />
+        <result property="paperid"    column="paperid"    />
+        <result property="questions"    column="questions"    />
+        <result property="questiontype"    column="questiontype"    />
+        <result property="scores"    column="scores"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap id="QuestionBankQuestionOptionsResult" type="QuestionBank" extends="QuestionBankResult">
+        <collection property="questionOptionsList" notNullColumn="sub_optionId" javaType="java.util.List" resultMap="QuestionOptionsResult" />
+    </resultMap>
+
+    <resultMap type="QuestionOptions" id="QuestionOptionsResult">
+        <result property="optionId"    column="sub_optionId"    />
+        <result property="qid"    column="sub_qid"    />
+        <result property="optionContent"    column="sub_optionContent"    />
+        <result property="optionTag"    column="sub_optionTag"    />
+        <result property="correctAnswerStatus"    column="sub_correctAnswerStatus"    />
+        <result property="createBy"    column="sub_create_by"    />
+        <result property="createTime"    column="sub_create_time"    />
+        <result property="updateBy"    column="sub_update_by"    />
+        <result property="updateTime"    column="sub_update_time"    />
+        <result property="remark"    column="sub_remark"    />
+    </resultMap>
+
+    <sql id="selectQuestionBankVo">
+        select questionid, paperid, questions, questiontype, scores, create_by, create_time, update_by, update_time, remark from stu_question_bank
+    </sql>
+
+    <select id="selectQuestionBankList" parameterType="QuestionBank" resultMap="QuestionBankResult">
+        <include refid="selectQuestionBankVo"/>
+        <where>  
+            <if test="paperid != null "> and paperid = #{paperid}</if>
+            <if test="questions != null  and questions != ''"> and questions = #{questions}</if>
+            <if test="questiontype != null "> and questiontype = #{questiontype}</if>
+            <if test="scores != null "> and scores = #{scores}</if>
+        </where>
+    </select>
+
+    <sql id="selectQuestionOptionsVo">
+        select optionId, qid, optionContent, optionTag, correctAnswerStatus, create_by, create_time, update_by, update_time, remark from stu_question_options
+    </sql>
+
+    <select id="selectQuestionOptionsList" parameterType="QuestionOptions" resultType="com.ruoyi.project.homework.questionbank.domain.QuestionOptions">
+        <include refid="selectQuestionOptionsVo"/>
+        <where>
+            <if test="qid != null "> and qid = #{qid}</if>
+        </where>
+    </select>
+
+    <select id="selectQuestionBankByQuestionid" parameterType="Long" resultMap="QuestionBankQuestionOptionsResult">
+        select a.questionid, a.paperid, a.questions, a.questiontype, a.scores, a.create_by, a.create_time, a.update_by, a.update_time, a.remark,
+ b.optionId as sub_optionId, b.qid as sub_qid, b.optionContent as sub_optionContent, b.optionTag as sub_optionTag, b.correctAnswerStatus as sub_correctAnswerStatus, b.create_by as sub_create_by, b.create_time as sub_create_time, b.update_by as sub_update_by, b.update_time as sub_update_time, b.remark as sub_remark
+        from stu_question_bank a
+        left join stu_question_options b on b.qid = a.questionid
+        where a.questionid = #{questionid}
+    </select>
+    <select id="selectQuestionBankOptionBypaperid" resultType="java.util.HashMap">
+        select a.questionid qid,b.optionId oid,a.questions,b.optionContent,b.optionTag,b.correctAnswerStatus from stu_question_bank a left join stu_question_options b on a.questionid = b.qid where a.paperid = #{paperid}
+    </select>
+    <select id="selectAllQuestionBank" resultType="com.ruoyi.project.homework.questionbank.domain.QuestionBank">
+        <include refid="selectQuestionBankVo"/>
+    </select>
+    <select id="selectAllQuestionBankByPaperID"
+            resultType="com.ruoyi.project.homework.questionbank.domain.QuestionBank">
+        <include refid="selectQuestionBankVo"/>
+        where paperid = #{paperid}
+    </select>
+    <select id="selectQuestionBankOptionByQid"
+            resultType="com.ruoyi.project.homework.questionbank.domain.QuestionOptions">
+        <include refid="selectQuestionOptionsVo"/>
+        where qid = #{questionid}
+    </select>
+    <select id="selectQuestionBankOptionByQuestionID"
+            resultType="com.ruoyi.project.homework.questionbank.domain.QuestionBank">
+        <include refid="selectQuestionBankVo"/>
+        where questionid = #{questionid}
+    </select>
+    <select id="selectQuestionBankByOptionId"
+            resultType="com.ruoyi.project.homework.questionbank.domain.QuestionOptions">
+        <include refid="selectQuestionOptionsVo"/>
+        where optionId = #{optionId}
+    </select>
+
+
+    <insert id="insertQuestionBank" parameterType="QuestionBank" useGeneratedKeys="true" keyProperty="questionid">
+        insert into stu_question_bank
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paperid != null">paperid,</if>
+            <if test="questions != null">questions,</if>
+            <if test="questiontype != null">questiontype,</if>
+            <if test="scores != null">scores,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paperid != null">#{paperid},</if>
+            <if test="questions != null">#{questions},</if>
+            <if test="questiontype != null">#{questiontype},</if>
+            <if test="scores != null">#{scores},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateQuestionBank" parameterType="QuestionBank">
+        update stu_question_bank
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paperid != null">paperid = #{paperid},</if>
+            <if test="questions != null">questions = #{questions},</if>
+            <if test="questiontype != null">questiontype = #{questiontype},</if>
+            <if test="scores != null">scores = #{scores},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where questionid = #{questionid}
+    </update>
+
+    <delete id="deleteQuestionBankByQuestionid" parameterType="Long">
+        delete from stu_question_bank where questionid = #{questionid}
+    </delete>
+
+    <delete id="deleteQuestionBankByQuestionids" parameterType="String">
+        delete from stu_question_bank where questionid in 
+        <foreach item="questionid" collection="array" open="(" separator="," close=")">
+            #{questionid}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteQuestionOptionsByQids" parameterType="String">
+        delete from stu_question_options where qid in 
+        <foreach item="qid" collection="array" open="(" separator="," close=")">
+            #{qid}
+        </foreach>
+    </delete>
+
+    <delete id="deleteQuestionOptionsByQid" parameterType="Long">
+        delete from stu_question_options where qid = #{qid}
+    </delete>
+
+    <insert id="batchQuestionOptions">
+        insert into stu_question_options( optionId, qid, optionContent, optionTag, correctAnswerStatus, create_by, create_time, update_by, update_time, remark) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.optionId}, #{item.qid}, #{item.optionContent}, #{item.optionTag}, #{item.correctAnswerStatus}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.remark})
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.homework.online.mapper.CodingOnlineMapper">
+    
+    <resultMap type="CodingOnline" id="CodingOnlineResult">
+        <result property="coding"    column="coding"    />
+        <result property="result"    column="result"    />
+        <result property="id"    column="id"    />
+    </resultMap>
+
+    <sql id="selectCodingOnlineVo">
+        select coding, result, id from coding_online
+    </sql>
+
+    <select id="selectCodingOnlineList" parameterType="CodingOnline" resultMap="CodingOnlineResult">
+        <include refid="selectCodingOnlineVo"/>
+        <where>  
+            <if test="coding != null  and coding != ''"> and coding = #{coding}</if>
+            <if test="result != null  and result != ''"> and result = #{result}</if>
+        </where>
+    </select>
+    
+    <select id="selectCodingOnlineById" parameterType="Long" resultMap="CodingOnlineResult">
+        <include refid="selectCodingOnlineVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCodingOnline" parameterType="CodingOnline" useGeneratedKeys="true" keyProperty="id">
+        insert into coding_online
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="coding != null">coding,</if>
+            <if test="result != null">result,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="coding != null">#{coding},</if>
+            <if test="result != null">#{result},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCodingOnline" parameterType="CodingOnline">
+        update coding_online
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="coding != null">coding = #{coding},</if>
+            <if test="result != null">result = #{result},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCodingOnlineById" parameterType="Long">
+        delete from coding_online where id = #{id}
+    </delete>
+
+    <delete id="deleteCodingOnlineByIds" parameterType="String">
+        delete from coding_online where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

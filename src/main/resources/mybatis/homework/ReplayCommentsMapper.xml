@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.homework.stumessages.mapper.ReplayCommentsMapper">
+    
+    <resultMap type="ReplayComments" id="ReplayCommentsResult">
+        <result property="id"    column="id"    />
+        <result property="guestId"    column="guest_id"    />
+        <result property="commentId"    column="comment_id"    />
+        <result property="replayUserId"    column="replay_user_id"    />
+        <result property="repliedUserId"    column="replied_user_id"    />
+        <result property="content"    column="content"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="replyedUserName"    column="replyed_user_name"    />
+        <result property="replyUserName"    column="reply_user_name"    />
+        <result property="like"    column="like"    />
+    </resultMap>
+
+    <sql id="selectReplayCommentsVo">
+        select id, guest_id, comment_id, replay_user_id, replied_user_id, content, create_time, replyed_user_name, reply_user_name,`like` from replay_comments
+    </sql>
+
+    <select id="selectReplayCommentsList" parameterType="ReplayComments" resultMap="ReplayCommentsResult">
+        <include refid="selectReplayCommentsVo"/>
+        <where>  
+            <if test="guestId != null "> and guest_id = #{guestId}</if>
+            <if test="commentId != null "> and comment_id = #{commentId}</if>
+            <if test="replayUserId != null "> and replay_user_id = #{replayUserId}</if>
+            <if test="repliedUserId != null "> and replied_user_id = #{repliedUserId}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="replyedUserName != null  and replyedUserName != ''"> and replyed_user_name like concat('%', #{replyedUserName}, '%')</if>
+            <if test="replyUserName != null  and replyUserName != ''"> and reply_user_name like concat('%', #{replyUserName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectReplayCommentsById" parameterType="Long" resultMap="ReplayCommentsResult">
+        <include refid="selectReplayCommentsVo"/>
+        where id = #{id}
+    </select>
+    <select id="getReplayCommentsById" parameterType="Long" resultMap="ReplayCommentsResult">
+        select r.id, r.guest_id, r.comment_id, r.replay_user_id, r.replied_user_id, r.content, r.create_time, r.replyed_user_name, r.reply_user_name,r.like,u.avatar as userImg from replay_comments r left join sys_user u on r.replay_user_id = u.user_id
+        where r.comment_id = #{id}
+    </select>
+
+    <insert id="insertReplayComments" parameterType="ReplayComments" useGeneratedKeys="true" keyProperty="id">
+        insert into replay_comments
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="guestId != null">guest_id,</if>
+            <if test="commentId != null">comment_id,</if>
+            <if test="replayUserId != null">replay_user_id,</if>
+            <if test="repliedUserId != null">replied_user_id,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="replyedUserName != null">replyed_user_name,</if>
+            <if test="replyUserName != null">reply_user_name,</if>
+            <if test="like != null">`like`,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="guestId != null">#{guestId},</if>
+            <if test="commentId != null">#{commentId},</if>
+            <if test="replayUserId != null">#{replayUserId},</if>
+            <if test="repliedUserId != null">#{repliedUserId},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="replyedUserName != null">#{replyedUserName},</if>
+            <if test="replyUserName != null">#{replyUserName},</if>
+            <if test="like != null">#{like},</if>
+         </trim>
+    </insert>
+
+    <update id="updateReplayComments" parameterType="ReplayComments">
+        update replay_comments
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="guestId != null">guest_id = #{guestId},</if>
+            <if test="commentId != null">comment_id = #{commentId},</if>
+            <if test="replayUserId != null">replay_user_id = #{replayUserId},</if>
+            <if test="repliedUserId != null">replied_user_id = #{repliedUserId},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="replyedUserName != null">replyed_user_name = #{replyedUserName},</if>
+            <if test="replyUserName != null">reply_user_name = #{replyUserName},</if>
+            <if test="like != null">`like` = #{like},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    <update id="likeCommentById">
+        update replay_comments set `like` = `like`+1 where id = #{id}
+    </update>
+
+    <delete id="deleteReplayCommentsById" parameterType="Long">
+        delete from replay_comments where id = #{id}
+    </delete>
+
+    <delete id="deleteReplayCommentsByIds" parameterType="String">
+        delete from replay_comments where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

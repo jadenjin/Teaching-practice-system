@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('我的作业列表')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>学生姓名：</label>
+                            <input type="text" name="studentName"/>
+                        </li>
+                        <li>
+                            <label>作业标题：</label>
+                            <input type="text" name="homeworkTitle"/>
+                        </li>
+                        <li>
+                            <label>作业状态：</label>
+                            <select name="state" th:with="type=${@dict.getType('stu_homework_state')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('homework:myhomework:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('homework:myhomework:remove')}]];
+    var stateDatas = [[${@dict.getType('stu_homework_state')}]];
+    var prefix = ctx + "homework/markstuhomework";
+
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            updateUrl: prefix + "/edit/{id}",
+            detailUrl: prefix + "/detail/{id}",
+            modalName: "批阅作业",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'hid',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'homeworkId',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'studentName',
+                    title: '学生姓名'
+                },
+                {
+                    field: 'teacherName',
+                    title: '教师姓名'
+                },
+                {
+                    field: 'stuclasSname',
+                    title: '班级名称'
+                },
+                {
+                    field: 'homeworkTitle',
+                    title: '作业标题'
+                },
+                {
+                    field: 'radioscore',
+                    title: '客观分'
+                },
+                {
+                    field: 'homeworkScore',
+                    title: '主观分'
+                },
+                {
+                    field: 'allscores',
+                    title: '作业总分'
+                },
+                {
+                    field: 'state',
+                    title: '作业状态',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(stateDatas, value);
+                    }
+                },
+                {
+                    field: 'markMan',
+                    title: '批阅人'
+                },
+                {
+                    field: 'markTime',
+                    title: '批阅时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="detail(\'' + row.hid + '\',\'' + row.homeworkId + '\')"><i class="fa fa-info"></i>详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.hid + '\')"><i class="fa fa-edit"></i>批阅主观题</a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    /**
+     * 作业详细
+     * @param id
+     * @param homeworkId
+     */
+    function detail(id,homeworkid){
+        var url = prefix + "/detail/" + id + "?homeworkid=" + homeworkid;
+        $.modal.open("作业详情",url)
+    }
+    function onlineHomeWork(hid){
+        let surl = prefix +'/checkOnlieHomeWork?hid=' + hid;
+        $.get(surl, function(data,status){
+            console.log(data);
+            if (status){
+                if (data.code == 107){
+                    $.modal.alertError($.modal.alertError(data.msg))
+                } else if (data.code == 301){
+                    $.modal.alertError(data.msg)
+                }else {
+                    var options = {
+                        title: '在线题作业',
+                        url: prefix + '/onlineQuestion/' + hid,
+                        btn: 1,
+                        callBack: doSubmit
+                    };
+                    $.modal.openOptions(options);
+                }
+            }else {
+                $.modal.alertError("网路请求失败咯!")
+            }
+        });
+    }
+    doSubmit = function (r) {
+        console.log(r)
+    }
+</script>
+</body>
+</html>

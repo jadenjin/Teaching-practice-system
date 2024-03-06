@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.homework.answer.mapper.AnswerMapper">
+
+    <resultMap type="Answer" id="AnswerResult">
+        <result property="id"    column="id"    />
+        <result property="homeworkid"    column="homeworkid"    />
+        <result property="studentId"    column="student_id"    />
+        <result property="studentName"    column="student_name"    />
+        <result property="stucalssid"    column="stucalssid"    />
+        <result property="teacherid"    column="teacherid"    />
+        <result property="paperid"    column="paperid"    />
+        <result property="questionid"    column="questionid"    />
+        <result property="optionid"    column="optionid"    />
+        <result property="question"    column="question"    />
+        <result property="answer"    column="answer"    />
+        <result property="correctAnswerStatus"    column="correctAnswerStatus"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectAnswerVo">
+        select id, homeworkid, student_id, student_name, stucalssid, teacherid, paperid, questionid, optionid, question, answer, correctAnswerStatus, create_by, create_time, update_by, update_time, remark from stu_answer
+    </sql>
+
+    <select id="selectAnswerList" parameterType="Answer" resultMap="AnswerResult">
+        <include refid="selectAnswerVo"/>
+        <where>
+            <if test="homeworkid != null  and homeworkid != ''"> and homeworkid = #{homeworkid}</if>
+            <if test="studentId != null  and studentId != ''"> and student_id = #{studentId}</if>
+            <if test="studentName != null  and studentName != ''"> and student_name like concat('%', #{studentName}, '%')</if>
+            <if test="stucalssid != null  and stucalssid != ''"> and stucalssid = #{stucalssid}</if>
+            <if test="teacherid != null  and teacherid != ''"> and teacherid = #{teacherid}</if>
+            <if test="paperid != null "> and paperid = #{paperid}</if>
+            <if test="questionid != null "> and questionid = #{questionid}</if>
+            <if test="optionid != null "> and optionid = #{optionid}</if>
+            <if test="question != null  and question != ''"> and question = #{question}</if>
+            <if test="answer != null  and answer != ''"> and answer = #{answer}</if>
+            <if test="correctAnswerStatus != null  and correctAnswerStatus != ''"> and correctAnswerStatus = #{correctAnswerStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectAnswerById" parameterType="Long" resultMap="AnswerResult">
+        <include refid="selectAnswerVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectAnswerByHId" resultType="com.ruoyi.project.homework.answer.domain.Answer">
+        <include refid="selectAnswerVo"/>
+        where homeworkid = #{hid} and teacherid = #{teacherid}
+    </select>
+    <select id="selectAnswerByOnlineHomeWorkId" resultType="java.lang.Integer">
+        select 1 from stu_answer where homeworkid = #{id} and student_id = #{studentId} limit 1
+    </select>
+    <select id="selectStuAnswerByHId" resultType="java.lang.Integer">
+        select 1 from stu_answer where homeworkid = #{hid}  limit 1
+    </select>
+    <select id="selectAnswerByStudentId" resultType="com.ruoyi.project.homework.answer.domain.Answer">
+        <include refid="selectAnswerVo"/>
+        where homeworkid = #{id} and student_id = #{studentid}
+    </select>
+
+
+    <insert id="insertAnswer" parameterType="Answer" useGeneratedKeys="true" keyProperty="id">
+        insert into stu_answer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="homeworkid != null">homeworkid,</if>
+            <if test="studentId != null">student_id,</if>
+            <if test="studentName != null">student_name,</if>
+            <if test="stucalssid != null">stucalssid,</if>
+            <if test="teacherid != null">teacherid,</if>
+            <if test="paperid != null">paperid,</if>
+            <if test="questionid != null">questionid,</if>
+            <if test="optionid != null">optionid,</if>
+            <if test="question != null">question,</if>
+            <if test="answer != null">answer,</if>
+            <if test="correctAnswerStatus != null">correctAnswerStatus,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="homeworkid != null">#{homeworkid},</if>
+            <if test="studentId != null">#{studentId},</if>
+            <if test="studentName != null">#{studentName},</if>
+            <if test="stucalssid != null">#{stucalssid},</if>
+            <if test="teacherid != null">#{teacherid},</if>
+            <if test="paperid != null">#{paperid},</if>
+            <if test="questionid != null">#{questionid},</if>
+            <if test="optionid != null">#{optionid},</if>
+            <if test="question != null">#{question},</if>
+            <if test="answer != null">#{answer},</if>
+            <if test="correctAnswerStatus != null">#{correctAnswerStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAnswer" parameterType="Answer">
+        update stu_answer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="homeworkid != null">homeworkid = #{homeworkid},</if>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="studentName != null">student_name = #{studentName},</if>
+            <if test="stucalssid != null">stucalssid = #{stucalssid},</if>
+            <if test="teacherid != null">teacherid = #{teacherid},</if>
+            <if test="paperid != null">paperid = #{paperid},</if>
+            <if test="questionid != null">questionid = #{questionid},</if>
+            <if test="optionid != null">optionid = #{optionid},</if>
+            <if test="question != null">question = #{question},</if>
+            <if test="answer != null">answer = #{answer},</if>
+            <if test="correctAnswerStatus != null">correctAnswerStatus = #{correctAnswerStatus},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAnswerById" parameterType="Long">
+        delete from stu_answer where id = #{id}
+    </delete>
+
+    <delete id="deleteAnswerByIds" parameterType="String">
+        delete from stu_answer where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

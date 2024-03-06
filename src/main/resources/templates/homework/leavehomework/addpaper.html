@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('试卷管理列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>试卷标题：</label>
+                                <input type="text" name="paperTitle"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var paperTypeDatas = [[${@dict.getType('papertype')}]];
+        var stateDatas = [[${@dict.getType('paperstate')}]];
+        var prefix = ctx + "homework/paper";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                modalName: "试卷管理",
+                showSearch:false,
+                showRefresh:false,
+                showToggle:false,
+                showColumns:false,
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'paperid',
+                    title: '试卷ID',
+                    visible: false
+                },
+                {
+                    field: 'paperTitle',
+                    title: '试卷标题'
+                },
+                {
+                    field: 'paperType',
+                    title: '试卷类型',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(paperTypeDatas, value);
+                    }
+                },
+                {
+                    field: 'paperResources',
+                    title: '试卷来源'
+                }]
+            };
+            $.table.init(options);
+        });
+        function getSelections() {
+            return $("#" + table.options.id).bootstrapTable('getSelections');
+        }
+    </script>
+</body>
+</html>

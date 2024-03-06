@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增我的作业')" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <th:block th:include="include :: summernote-css" />
+</head>
+<style>
+    .body .layer-ext-moon .layui-layer-setwin{
+        display: none !important;
+    }
+</style>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <div th:if="${leavehomework.paperid}">
+            <h2 class="text-center">------------------------- 客观题 -------------------------</h2>
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="alert alert-info">
+                        <h2><i class="fa fa-balance-scale"></i>试卷——<span th:text="${papertitle}"></span>——的作业</h2>
+                    </div>
+                    <div class="ibox-content">
+                        <form class="form-horizontal m" id="form-ibox-content">
+                            <ul class="list-group" th:each="item:${radioQuestionsList}">
+                                <li class="list-group-item"><h3 class="alert alert-success"><span th:text="${itemStat.index+1}"></span>. <span th:text="${item.questions}"></span>（<span th:text="${item.scores}"></span>分）</h3>
+                                    <ul class="list-group" th:each="subitem:${item.questionOptionsList}">
+                                        <li class="list-group-item">
+                                            <span><label th:text="${subitem.optionTag}"></label></span> 、
+                                            <div class="radio radio-box">
+                                                <label> <input type="radio"  th:name="${item.questionid}" th:id="'optionid'+${itemStat.index+1}" th:attr="data-id=${subitem.optionId}" th:value="${subitem.optionId}">
+                                                    <span th:text="${subitem.optionContent}"></span></label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </form>
+<!--                        <button class="btn btn-primary dim btn-block" onclick="submit()">提交答案</button>-->
+                    </div>
+                </div>
+            </div>
+            <!--                <div class="btn btn-success dim btn-block" onclick="onlineHomeWork()"><b class="text-center font-bold" style="font-size: 18px;">点我在线做客观题</b></div>-->
+        </div>
+        <form class="form-horizontal m" id="form-myhomework-add">
+            <h2 class="text-center">------------------------- 主观题 -------------------------</h2>
+            <div class="form-group" style="display: none;">
+                <div class="form-group" style="display: none;">
+                    <label class="col-sm-3 control-label">教师id：</label>
+                    <div class="col-sm-8">
+                        <input name="teacherrId" readonly class="form-control" type="text" th:value="${leavehomework.teacherId}">
+                    </div>
+                </div>
+                <div class="form-group" style="display: none;">
+                    <label class="col-sm-2 control-label">教师姓名：</label>
+                    <div class="col-sm-10">
+                        <input name="teacherName" readonly class="form-control" type="text" th:value="${leavehomework.teacherName}">
+                    </div>
+                </div>
+                <label class="col-sm-3 control-label">学生id：</label>
+                <div class="col-sm-8">
+                    <input name="studentId" readonly class="form-control" type="text" th:value="${@permission.getPrincipalProperty('loginName')}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">学生姓名：</label>
+                <div class="col-sm-8">
+                    <input name="studentName" class="form-control" type="text" th:value="${@permission.getPrincipalProperty('userName')}">
+                </div>
+            </div>
+            <div class="form-group" style="display: none">
+                <label class="col-sm-3 control-label">作业id：</label>
+                <div class="col-sm-8">
+                    <input name="homeworkId" readonly class="form-control" type="text" th:value="${leavehomework.id}">
+                </div>
+            </div>
+            <div class="form-group" style="display: none">
+                <label class="col-sm-3 control-label">试卷ID：</label>
+                <div class="col-sm-8">
+                    <input name="paperid" readonly class="form-control" type="text" th:value="${leavehomework.paperid}">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-2 control-label">作业标题：</label>
+                <div class="col-sm-10">
+                    <input name="homeworkTitle" class="form-control" readonly type="text" th:value="${leavehomework.title}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">作业内容：</label>
+                <div class="col-sm-10">
+                    <label th:utext="*{leavehomework.content}"></label>
+                    <input  name="studentContent" class="form-control" readonly type="text" th:value="${leavehomework.content}" style="border: none;display: none">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">学生作答：</label>
+                <div class="col-sm-10">
+                    <input type="hidden" class="form-control" name="homeworkContent">
+                    <div class="summernote" id="homeworkContent"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">附件：</label>
+                <div class="col-sm-10">
+                    <input type="hidden" name="material">
+                    <div class="file-loading">
+                        <input class="form-control file-upload" id="material" name="file" type="file">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: bootstrap-fileinput-js"/>
+    <th:block th:include="include :: summernote-js" />
+    <script th:inline="javascript">
+        let paperid = '';
+        let homeworkid = '';
+        let queastionsize = 1;
+        let teacherid = '';
+        let prefix = ctx + "homework/myhomework";
+        let sprefix = ctx + "homework/handinhomework";
+        $("#form-myhomework-add").validate({
+            focusCleanup: true
+        });
+
+        $(".file-upload").fileinput({
+            uploadUrl: ctx + 'common/upload',
+            maxFileCount: 1,
+            autoReplace: true
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
+
+        $(function() {
+            paperid = [[${leavehomework.paperid}]];
+            homeworkid = [[${leavehomework.id}]];
+            queastionsize = [[${queastionsize}]];
+            teacherid = [[${teacherid}]];
+            $('.summernote').summernote({
+                lang: 'zh-CN',
+                dialogsInBody: true,
+                callbacks: {
+                    onChange: function(contents, $edittable) {
+                        $("input[name='" + this.id + "']").val(contents);
+                    },
+                    onImageUpload: function(files) {
+                        var obj = this;
+                    	var data = new FormData();
+                    	data.append("file", files[0]);
+                    	$.ajax({
+                            type: "post",
+                            url: ctx + "common/upload",
+                    		data: data,
+                    		cache: false,
+                    		contentType: false,
+                    		processData: false,
+                    		dataType: 'json',
+                    		success: function(result) {
+                    		    if (result.code == web_status.SUCCESS) {
+                    		        $('#' + obj.id).summernote('insertImage', result.url);
+                    		    } else {
+                    		        $.modal.alertError(result.msg);
+                    		    }
+                    		},
+                    		error: function(error) {
+                    		    $.modal.alertWarning("图片上传失败。");
+                    		}
+                    	});
+                    }
+                }
+            });
+        });
+        function submitHandler() {
+            /**
+             * 这里如果有在线题库的试卷ID，则需要提交在线题库的答案，否则提交纸质试卷的答案了，也就是只提交主观题的答案
+             * @type {jQuery|*}
+             */
+            let dataarray = $("#form-ibox-content").serializeArray();
+            console.log(paperid != null);
+            if (paperid != null) {
+                if (dataarray.length == 0) {
+                    $.modal.alertError("请先做题好不好？");
+                    return false;
+                }
+
+                if (dataarray.length != queastionsize) {
+                    $.modal.alertWarning("您还有未做的题，尽快完成再提交吧~");
+                    return false;
+                }
+                // console.log(JSON.stringify($("#form-ibox-content").serialize()))
+                $.post(sprefix + "/submitRadioOptions", {paperid:[[${paperid}]],teacherid:teacherid,homeworkid:homeworkid,options: JSON.stringify($("#form-ibox-content").serialize())}, function(result) {
+                    console.log(result)
+                    if (result.code == web_status.SUCCESS) {
+                        $.modal.msgSuccess("提交成功")
+                        $.modal.close();
+                    } else {
+                        $.modal.msgError(result.msg);
+                    }
+                });
+            }
+            $.operate.save(prefix + "/add", $('#form-myhomework-add').serialize());
+        }
+        /**
+         * 在线作业（客观题）
+         * @param paperid
+         * @param homeworkid
+         */
+        function onlineHomeWork(){
+            console.log(paperid);
+            let surl = sprefix +'/checkOnlineWork?homeworkid=' + homeworkid;
+            $.get(surl, function(data,status){
+                console.log(data)
+                console.log("状态: " + status);
+                if (status){
+                    if (data.code == 107){
+                        $.modal.alertError($.modal.alertError(data.msg))
+                    } else if (data.code == 301){
+                        $.modal.alertError(data.msg)
+                    }else {
+                        var options = {
+                            title: '在线题作业',
+                            url: sprefix + '/onlineQuestion/' + paperid +"?homeworkid="+homeworkid,
+                            btn: 1,
+                            callBack: doSubmit
+                        };
+                        $.modal.openOptions(options);
+                    }
+                }else {
+                    $.modal.alertError("网路请求失败咯!")
+                }
+            });
+        }
+        doSubmit = function (r) {
+            console.log(r)
+        }
+    </script>
+</body>
+</html>

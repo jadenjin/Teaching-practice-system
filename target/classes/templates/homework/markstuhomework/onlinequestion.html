@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <th:block th:include="include :: header('客观题作业详情')" />
+</head>
+<style>
+  .tdtextbold{
+    font-weight: 600;
+  }
+  .widthh{
+    width: 150px;
+  }
+  .width{
+    width: 200px;
+  }
+  .tdstyle{
+    border: 1px solid #009866;
+    text-align: center;
+  }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+  <form class="form-horizontal m">
+    <div class="btn btn-success  dim hidden-print" style="margin-bottom: 10px;" type="button" onclick="printPage()"><i class="fa fa-print"></i>&nbsp;打印此表</div><br>
+    <table class="table table-bordered">
+      <tbody>
+      <tr>
+        <td colspan="3" style="text-align: center;font-size: 20px;font-weight: bold;">客观题作业详情信息</td>
+      </tr>
+      <tr>
+        <td class="tdstyle">作业题目</td>
+        <td class="tdstyle">学生作答</td>
+        <td class="tdstyle">答案状态</td>
+      </tr>
+      <tr th:each="answer:${answer}">
+        <td><label th:text="${answer.question}"></label></td>
+        <td><label th:text="${answer.answer}"></label></td>
+        <td><label  th:if="${answer.correctAnswerStatus}==0"><span style="color: #1AB394">答案正确</span></label><label  th:if="${answer.correctAnswerStatus}==1"><span style="color: red">答案错误</span></label></td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+<th:block th:include="include :: footer" />
+<script type="text/javascript">
+  function printPage() {
+    window.print();
+  }
+</script>
+</body>
+</html>
+
+</body>
+</html>

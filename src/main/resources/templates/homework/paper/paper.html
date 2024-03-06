@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('试卷管理列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>试卷标题：</label>
+                                <input type="text" name="paperTitle"/>
+                            </li>
+                            <li>
+                                <label>试卷类型：</label>
+                                <select name="paperType" th:with="type=${@dict.getType('papertype')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <label>试卷来源：</label>
+                                <input type="text" name="paperResources"/>
+                            </li>
+                            <li>
+                                <label>状态：</label>
+                                <select name="state" th:with="type=${@dict.getType('paperstate')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="homework:paper:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="homework:paper:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="homework:paper:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="homework:paper:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('homework:paper:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('homework:paper:remove')}]];
+        var paperTypeDatas = [[${@dict.getType('papertype')}]];
+        var stateDatas = [[${@dict.getType('paperstate')}]];
+        var prefix = ctx + "homework/paper";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "试卷管理",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'paperid',
+                    title: '试卷ID',
+                    visible: false
+                },
+                {
+                    field: 'paperTitle',
+                    title: '试卷标题'
+                },
+                {
+                    field: 'paperType',
+                    title: '试卷类型',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(paperTypeDatas, value);
+                    }
+                },
+                {
+                    field: 'paperResources',
+                    title: '试卷来源'
+                },
+                {
+                    field: 'state',
+                    title: '状态',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(stateDatas, value);
+                    }
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="quastionBank(\'' + row.paperid + '\')"><i class="fa fa-info"></i>题库管理</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.paperid + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.paperid + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        /**
+         * 题库管理
+         */
+        function quastionBank(paperid) {
+            var url = prefix + "/addToQuestionBank/" + paperid;
+            $.modal.openTab("题库管理", url);
+        }
+    </script>
+</body>
+</html>
