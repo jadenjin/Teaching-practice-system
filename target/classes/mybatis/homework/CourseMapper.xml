@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.homework.course.mapper.CourseMapper">
+    
+    <resultMap type="Course" id="CourseResult">
+        <result property="id"    column="id"    />
+        <result property="courseName"    column="course_name"    />
+        <result property="timeBegin"    column="time_begin"    />
+        <result property="timeEnd"    column="time_end"    />
+        <result property="teacher"    column="teacher"    />
+    </resultMap>
+
+    <sql id="selectCourseVo">
+        select id, course_name, time_begin, time_end, teacher from course
+    </sql>
+
+    <select id="selectCourseList" parameterType="Course" resultMap="CourseResult">
+        <include refid="selectCourseVo"/>
+        <where>  
+            <if test="courseName != null  and courseName != ''"> and course_name like concat('%', #{courseName}, '%')</if>
+            <if test="timeBegin != null "> and time_begin = #{timeBegin}</if>
+            <if test="timeEnd != null "> and time_end = #{timeEnd}</if>
+            <if test="teacher != null  and teacher != ''"> and teacher = #{teacher}</if>
+        </where>
+    </select>
+    
+    <select id="selectCourseById" parameterType="Long" resultMap="CourseResult">
+        <include refid="selectCourseVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCourse" parameterType="Course">
+        insert into course
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="courseName != null">course_name,</if>
+            <if test="timeBegin != null">time_begin,</if>
+            <if test="timeEnd != null">time_end,</if>
+            <if test="teacher != null">teacher,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="courseName != null">#{courseName},</if>
+            <if test="timeBegin != null">#{timeBegin},</if>
+            <if test="timeEnd != null">#{timeEnd},</if>
+            <if test="teacher != null">#{teacher},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCourse" parameterType="Course">
+        update course
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="courseName != null">course_name = #{courseName},</if>
+            <if test="timeBegin != null">time_begin = #{timeBegin},</if>
+            <if test="timeEnd != null">time_end = #{timeEnd},</if>
+            <if test="teacher != null">teacher = #{teacher},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCourseById" parameterType="Long">
+        delete from course where id = #{id}
+    </delete>
+
+    <delete id="deleteCourseByIds" parameterType="String">
+        delete from course where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
