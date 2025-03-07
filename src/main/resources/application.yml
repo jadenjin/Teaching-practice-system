@@ -1,7 +1,7 @@
 # 项目相关配置
 ruoyi:
   # 名称
-  name: bs
+  name: Teaching-practice-system
   # 版本
   version: 2.1
   # 版权年份
@@ -144,7 +144,7 @@ swagger:
 # 代码生成
 gen: 
   # 作者
-  author: LH
+  author: JadenChen
   # 默认生成包路径 system 需改成自己的模块名称 如 system monitor tool
   packageName: com.ruoyi.project.homework
   # 自动去除表前缀，默认是true
